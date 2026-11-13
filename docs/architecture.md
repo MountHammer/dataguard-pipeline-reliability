@@ -1,4 +1,3 @@
-
 # DataGuard - System Architecture
 
 ## 1. Overview
@@ -58,13 +57,31 @@ flowchart TD
 
 ### 4.1 Synthetic Data Generator
 
-Generates customers, products, orders and order items.
+Generates customers, products, orders and order items as four
+CSV source files.
 
 Supports:
-- Small reproducible sample datasets.
-- Configurable larger datasets.
-- Fixed random seeds.
-- Valid records and deliberately labelled anomalies.
+- A small reproducible sample dataset and configurable larger
+  datasets of 100,000 or more order items.
+- Fixed random seeds and deterministic sequential identifiers.
+- Valid foreign-key relationships by construction.
+- Configuration validation that rejects impossible row counts.
+- Deterministic row shuffling for out-of-order arrival tests
+  (later option).
+- Deliberate anomaly injection (later step).
+
+Expected anomaly labels are never written into source CSV files.
+They are written to a separate manifest in an `_expected/`
+directory beside the source files. The ingestion pipeline never
+reads this directory.
+
+Some generator rules (for example, unit_price equals list_price
+and order items reference active products only) are generator
+invariants, not pipeline validation rules. The pipeline does not
+reject records that differ from them.
+
+Generation rules, configuration constraints and the manifest
+format are defined in docs/data_dictionary.md §16 and §17.
 
 ### 4.2 Data Ingestion
 
@@ -76,21 +93,31 @@ Responsible for:
 - Recording source row numbers.
 - Associating records with a run ID.
 - Handling unreadable or malformed files.
+- Reading only the four expected source files by exact name;
+  the `_expected/` manifest directory is never read.
+- Numbering rows by physical CSV line (header = line 1,
+  first data record = line 2).
 
 ### 4.3 Schema Validation
 
-Checks:
-- Expected column names.
-- Missing required columns.
-- Unexpected columns.
-- Required source fields.
-- Expected data types.
+Schema validation runs per file, before any record is checked.
 
-Missing or unexpected columns cause a batch-level schema failure.
+Checks:
+- The file exists and is readable as CSV.
+- A header row is present.
+- All expected columns are present (column order does not matter).
+- No unexpected columns are present.
+
+Any failure is a batch-level schema failure.
+
+Individual field values (required values, data types, allowed
+values) are not checked here. They are record-level checks
+performed by the Data Quality Engine.
 
 ### 4.4 Data Quality Engine
 
 Validates:
+- Parseable values of the expected data type.
 - Primary key uniqueness.
 - Required fields.
 - Null values.
@@ -148,6 +175,8 @@ Records:
 - execution_time_seconds
 - failure_reason
 
+Field definitions and storage rules are in docs/data_dictionary.md §13.
+
 ## 5. Data Validation Flow
 
 Validation follows entity dependencies.
@@ -166,15 +195,26 @@ Invalid references are rejected.
 
 ## 6. Failure Handling
 
-Batch-level failures:
+Batch-level failures (the pipeline run is recorded as FAILED,
+no analytical data is published, and run-level failure metadata
+is preserved). A batch-level failure in any one of the four
+required source files fails the entire run:
 - Missing source file.
 - Unreadable file.
+- Empty file without a header row.
 - Missing required column.
 - Unexpected source column.
+- Malformed file where parsing cannot safely continue or row
+  boundaries cannot be established.
 
-Record-level failures:
+Record-level failures (only the affected row is quarantined with
+reason codes; applies to rows that can be safely parsed):
+- Row with an incorrect number of fields, when the parser can
+  safely identify and recover the row (MALFORMED_ROW).
 - Missing required value.
-- Invalid data type.
+- Unparseable or wrong-typed value (for example `abc`, NaN or
+  infinity in a numeric column).
+- Value outside the allowed set or range.
 - Duplicate business identifier.
 - Invalid reference.
 - Business-rule violation.
@@ -230,67 +270,22 @@ customer information.
 
 The design prioritizes correctness and test evidence
 over infrastructure complexity.
-```
 
-Save using `Ctrl + S`.
+Byte-identical reproducibility of generated data is guaranteed
+only in the pinned software environment defined in
+requirements.txt. It is not claimed for other environments.
 
-## 5. Verify the architecture document
+## 10. Monetary Precision
 
-Run:
+Monetary columns use fixed-precision DECIMAL types:
+DECIMAL(12,2) for prices, DECIMAL(14,2) for amounts and
+DECIMAL(5,4) for discount_pct.
 
-```powershell
-Get-ChildItem docs
-```
+Python calculations use decimal.Decimal with ROUND_HALF_UP.
+Binary floating-point is never used for monetary values.
 
-Expected:
+In DuckDB, dividing DECIMAL values can produce a DOUBLE result,
+so warehouse calculations avoid unnecessary division.
 
-```text
-.gitkeep
-architecture.md
-data_dictionary.md
-```
-
-You can preview the Mermaid diagram directly on GitHub inside this Markdown file.
-
----
-
-# 6. One important technical decision
-
-Our chosen financial data types are `DECIMAL(12,2)` and `DECIMAL(14,2)`.
-
-This is deliberate: DuckDB supports fixed-precision decimal types, which are suitable for monetary calculations. Its documentation also explains that decimal division can produce floating-point results, so our calculations will avoid unnecessary division and use Python's `Decimal` for money validation. <Cite refs={["turn874445search0","turn874445search3"]}/>
-
-We'll also explicitly test database constraints for primary and foreign keys, and measure their performance impact instead of assuming that adding more constraints is always faster. <Cite refs={["turn874445search1","turn874445search2"]}/>
-
-# 7. Our next milestone
-
-<box border radius="lg" padding={3} gap={2}>
-  **Phase 2 progress**
-
-  <row justify="between">
-    Data dictionary
-    <badge color="success">Verified</badge>
-  </row>
-  <row justify="between">
-    Entity relationships
-    <badge color="success">Designed</badge>
-  </row>
-  <row justify="between">
-    Fact grain
-    <badge color="success">Defined</badge>
-  </row>
-  <row justify="between">
-    Business validation rules
-    <badge color="success">Defined</badge>
-  </row>
-  <row justify="between">
-    System architecture
-    <badge color="warning">Document now</badge>
-  </row>
-</box>
-
-After architecture, we will create a formal `docs/test_plan.md` mapping each hackathon requirement to a test case, input, expected result and acceptance criterion.
-
-**Only after the architecture and test plan are documented will we give Claude Code our first implementation task: building the reproducible synthetic data generator.**
-
-That way, the AI coding tools will implement a design we understand rather than inventing an architecture on our behalf.
+Primary- and foreign-key constraints will be tested, and their
+performance impact measured rather than assumed.

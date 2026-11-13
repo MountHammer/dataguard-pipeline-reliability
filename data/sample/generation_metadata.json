@@ -1,0 +1,40 @@
+{
+  "generator": "dataguard.generator.generate",
+  "config": {
+    "seed": 42,
+    "n_customers": 20,
+    "n_products": 15,
+    "n_orders": 40,
+    "n_order_items": 100,
+    "max_items_per_order": 6,
+    "inactive_product_ratio": 0.1,
+    "start_date": "2024-01-01",
+    "end_date": "2025-12-31"
+  },
+  "row_counts": {
+    "customers": 20,
+    "products": 15,
+    "orders": 40,
+    "order_items": 100
+  },
+  "files": {
+    "customers.csv": {
+      "sha256": "b5eb09ce2df65ba1d4b445417e30dec5d7116d1d1304345d75c8674bdca31d02"
+    },
+    "products.csv": {
+      "sha256": "ea330618ea8d14647c4674f7fdb7761514e9b90b2012d34c3cbea7f20e07f551"
+    },
+    "orders.csv": {
+      "sha256": "d5ddb88d573cc42dae5ca7297cde96ce453d8c433ceceaebfec6f07dd4783b98"
+    },
+    "order_items.csv": {
+      "sha256": "2bdc21c8724ada7adfd7f9181462fb7a533a70f3eb642b4eee945a0eced7a40f"
+    }
+  },
+  "environment": {
+    "python": "3.12.10",
+    "numpy": "2.5.4",
+    "pandas": "3.1.1",
+    "faker": "40.54.0"
+  }
+}

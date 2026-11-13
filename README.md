@@ -140,7 +140,12 @@ The project will use a fixed random seed for reproducible
 synthetic datasets.
 
 It will support a small review dataset and configurable
-larger datasets, targeting 100,000 or more records.
+larger datasets, targeting 100,000 or more order items.
+
+Byte-identical output for a given seed is guaranteed only in the
+pinned environment defined in requirements.txt (Python 3.12,
+pandas 3.1.1, NumPy 2.5.4, Faker 40.54.0). Other environments
+may produce valid but different datasets.
 
 Performance measurements and source-to-target
 reconciliation results will be documented.

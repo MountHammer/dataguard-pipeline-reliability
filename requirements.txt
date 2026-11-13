@@ -1,7 +1,9 @@
-
-pandas>=2.2,<4.0
-numpy>=1.26,<3.0
+# Reproducibility baseline: byte-identical generated datasets are
+# guaranteed only with the exact versions pinned below (Python 3.12).
+# Other versions may produce valid but different output.
+pandas==3.1.1
+numpy==2.5.4
 duckdb>=1.2,<2.0
 pytest>=8.0,<10.0
-Faker>=30.0
+Faker==40.54.0
 pytest-cov>=5.0,<8.0

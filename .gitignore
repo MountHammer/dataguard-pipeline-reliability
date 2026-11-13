@@ -30,6 +30,11 @@ data/raw/*.csv
 data/processed/*.csv
 data/quarantine/*.csv
 
+# Expected anomaly manifests (answer keys); never committed.
+# Sample source CSVs in data/sample/ remain trackable.
+data/raw/_expected/
+data/sample/_expected/
+
 # Local databases
 database/*.duckdb
 database/*.wal

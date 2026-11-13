@@ -1,0 +1,21 @@
+customer_id,customer_name,email,city,customer_segment,signup_date
+CUST-000001,Aryan Maharaj,aryan.maharaj.000001@example.com,Madurai,STANDARD,2025-07-08
+CUST-000002,Udant Dewan,udant.dewan.000002@example.com,Deoghar,STANDARD,2025-02-11
+CUST-000003,Gagan Sami,gagan.sami.000003@example.com,Ujjain,PREMIUM,2024-04-10
+CUST-000004,Ayushman Chander,ayushman.chander.000004@example.com,Nadiad,PREMIUM,2024-03-21
+CUST-000005,Viraj Tiwari,viraj.tiwari.000005@example.com,Proddatur,STANDARD,2024-03-01
+CUST-000006,Rushil Saini,rushil.saini.000006@example.com,Anantapur,STANDARD,2024-04-20
+CUST-000007,Saumya Mall,saumya.mall.000007@example.com,Berhampur,PREMIUM,2025-10-25
+CUST-000008,Nathaniel Sami,nathaniel.sami.000008@example.com,Satna,STANDARD,2024-07-25
+CUST-000009,Arunima Dugal,arunima.dugal.000009@example.com,Agartala,STANDARD,2024-03-12
+CUST-000010,Gayathri Chaudry,gayathri.chaudry.000010@example.com,Rajpur Sonarpur,PREMIUM,2024-08-22
+CUST-000011,Lajita Chatterjee,lajita.chatterjee.000011@example.com,Rajpur Sonarpur,STANDARD,2024-10-06
+CUST-000012,Hemangini Lalla,hemangini.lalla.000012@example.com,Tenali,VIP,2024-06-17
+CUST-000013,Tripti Yadav,tripti.yadav.000013@example.com,Asansol,PREMIUM,2024-04-15
+CUST-000014,Kritika Brar,kritika.brar.000014@example.com,Kolhapur,STANDARD,2024-02-05
+CUST-000015,Janaki Handa,janaki.handa.000015@example.com,Kishanganj,STANDARD,2024-03-23
+CUST-000016,Chakradev Kari,chakradev.kari.000016@example.com,Bhimavaram,PREMIUM,2024-07-18
+CUST-000017,Fariq Kaul,fariq.kaul.000017@example.com,Ballia,STANDARD,2025-06-21
+CUST-000018,Lajita Mall,,Mirzapur,STANDARD,2025-02-19
+CUST-000019,Janya Gaba,janya.gaba.000019@example.com,Durgapur,STANDARD,2024-11-15
+CUST-000020,Isha Kadakia,isha.kadakia.000020@example.com,Mysore,STANDARD,2025-03-10

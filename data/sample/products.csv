@@ -1,0 +1,16 @@
+product_id,product_name,category,brand,list_price,is_active
+PROD-000001,Everyday Water Bottle,Home,Sutra,20590.36,true
+PROD-000002,Lite Kettle,Home,Zenith,7939.92,true
+PROD-000003,Everyday Notebook,Books,,24091.29,true
+PROD-000004,Everyday Atlas,Books,Vastra,5365.45,true
+PROD-000005,Lite Basmati Rice,Grocery,Kiran,41609.04,true
+PROD-000006,Compact Mouse,Electronics,Aarav,47392.26,true
+PROD-000007,Smart Mouse,Electronics,,16194.88,true
+PROD-000008,Smart Clock,Home,Tejas,46304.27,true
+PROD-000009,Pro Notebook,Books,Sutra,37870.50,true
+PROD-000010,Lite Green Tea,Grocery,Vastra,2027.16,true
+PROD-000011,Lite Lamp,Home,,8527.57,true
+PROD-000012,Pro Novel,Books,Tejas,24347.34,true
+PROD-000013,Compact Charger,Electronics,Orbit,44461.52,true
+PROD-000014,Pro Headphones,Electronics,Nexa,41144.32,false
+PROD-000015,Premium Headphones,Electronics,Sutra,20174.44,true

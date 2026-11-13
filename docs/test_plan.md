@@ -64,17 +64,44 @@ Unit tests validate individual functions independently.
 | UT016 | Missing required value | NULL | Rejected |
 | UT017 | NaN or infinity | Non-finite value | Rejected |
 
+### 4.1 Synthetic Data Generator Tests
+
+| Test ID | Scenario | Expected Result |
+|---|---|---|
+| GEN001 | Column contract | Each file has exactly the centralized schema's columns, in order |
+| GEN002 | Row counts | Exactly match configuration |
+| GEN003 | Primary keys | Unique, non-empty, fixed-width format |
+| GEN004 | Foreign keys | All references resolve |
+| GEN005 | Items per order | 1 to max_items_per_order; products distinct within an order |
+| GEN006 | Order vs signup | order_timestamp on or after signup_date |
+| GEN007 | Allowed values | Segment, status and payment method in their supported sets |
+| GEN008 | Financials and generator invariants | Decimal ROUND_HALF_UP recalculation matches; unit_price = list_price; only active products referenced; inactive products exist in products.csv |
+| GEN009 | Nullability | Required columns never empty; nullable columns contain some empty values; emails valid when present |
+| GEN010 | Serialization | Raw text matches data dictionary §3.5 (dates, `Z` timestamps, lowercase booleans, 2/4 decimals, UTF-8, LF) |
+| GEN011 | Same seed | Byte-identical files (SHA-256) in the pinned environment |
+| GEN012 | Different seed | Different output |
+| GEN013 | Stream independence | Changing only the order-item count leaves customers.csv unchanged |
+| GEN014 | Config validation | Every data dictionary §16.3 constraint rejected; all-zero counts give header-only files |
+| GEN015 | CLI smoke | Exit 0, files created, refuses to overwrite without `--overwrite` |
+| GEN016 | Large dataset (slow) | 100,000 order items generated with valid keys; duration recorded |
+| GEN017 | No label leakage | Source files contain only contract columns; valid generation creates no `_expected/` |
+
+GEN011 applies only to the pinned environment in requirements.txt.
+
 ## 5. Schema Contract Testing
 
 | Test ID | Scenario | Expected Result |
 |---|---|---|
 | SC001 | All expected columns present | Pass |
 | SC002 | Missing required column | Batch failure |
-| SC003 | Unexpected source column | Schema drift failure |
+| SC003 | Unexpected source column | Batch failure (schema drift) |
 | SC004 | Reordered columns | Pass |
 | SC005 | Empty file with valid header | Pass |
 | SC006 | Empty file without header | Batch failure |
 | SC007 | Unreadable file | Batch failure |
+| SC008 | Invalid field value in a parseable row | Record-level rejection |
+| SC009 | Wrong field count in a recoverable row | Record-level MALFORMED_ROW rejection |
+| SC010 | Row boundaries cannot be established | Batch failure |
 
 ## 6. Duplicate Testing
 
@@ -102,6 +129,7 @@ Duplicate handling must be deterministic.
 | FK006 | Invalid order reference | Rejected |
 | FK007 | Order before customer signup | Rejected |
 | FK008 | Warehouse orphan foreign key | Reconciliation failure |
+| FK009 | Order item references an inactive product | Accepted (generator invariant, not a validation rule) |
 
 ## 8. Financial Business Rule Testing
 
@@ -117,6 +145,7 @@ Duplicate handling must be deterministic.
 | BR008 | Pending order revenue | Excluded |
 | BR009 | Cancelled order revenue | Excluded |
 | BR010 | Completed order revenue | Included |
+| BR011 | unit_price differs from current list_price | Accepted (generator invariant, not a validation rule) |
 
 ## 9. Data Quality Testing
 
@@ -125,7 +154,8 @@ Verify that:
 - Every accepted record satisfies its entity schema.
 - Every rejected record has at least one reason code.
 - Source filenames are preserved.
-- Source row numbers are preserved.
+- Source row numbers are preserved (header = line 1, first record = line 2).
+- Ingestion never reads the `_expected/` manifest.
 - Run identifiers are recorded.
 - No invalid foreign keys reach the warehouse.
 - Invalid rows remain traceable.
@@ -140,7 +170,7 @@ Verify that:
 | IT003 | Mixed valid and invalid records | Valid published, invalid quarantined |
 | IT004 | Large synthetic input | Successful processing |
 | IT005 | Warehouse reconciliation | All checks pass |
-| IT006 | Out-of-order transactions | Correct event-time processing |
+| IT006 | Out-of-order transactions (generator's deterministic shuffle option) | Correct event-time processing |
 | IT007 | Late-arriving transaction | Included in next complete snapshot |
 
 Integration tests must use isolated temporary directories
@@ -163,11 +193,11 @@ cause otherwise identical analytical snapshots to differ.
 
 | Test ID | Scenario | Expected Result |
 |---|---|---|
-| FR001 | Invalid source file | Batch failure |
+| FR001 | Invalid source file | Batch failure; whole run FAILED; no analytical data published; run record preserved |
 | FR002 | Failure during validation | Failure recorded |
 | FR003 | Failure during publishing | Transaction rolled back |
 | FR004 | Retry after failure | Successful recovery |
-| FR005 | Repeated failed execution | Separate run records |
+| FR005 | Repeated failed execution | One appended run-history record per execution |
 | FR006 | Previous committed warehouse exists | Remains unchanged after failed publish |
 
 Each execution receives its own run ID.
@@ -236,3 +266,5 @@ The project is considered ready for submission when:
 8. Source and target aggregates reconcile.
 9. Performance results are documented.
 10. Setup and execution work in a clean environment.
+11. The same seed produces byte-identical generated datasets in
+    the pinned environment defined in requirements.txt.
