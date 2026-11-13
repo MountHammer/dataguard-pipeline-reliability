@@ -1,0 +1,38 @@
+
+# Python virtual environments
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Testing artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE configuration
+.vscode/
+.idea/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Generated runtime data
+data/raw/*.csv
+data/processed/*.csv
+data/quarantine/*.csv
+
+# Local databases
+database/*.duckdb
+database/*.wal
+
+# Runtime logs
+reports/pipeline_runs.jsonl

@@ -1,0 +1,7 @@
+
+pandas>=2.2,<4.0
+numpy>=1.26,<3.0
+duckdb>=1.2,<2.0
+pytest>=8.0,<10.0
+Faker>=30.0
+pytest-cov>=5.0,<8.0
